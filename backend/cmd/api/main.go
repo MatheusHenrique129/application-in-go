@@ -1,31 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"log"
-	"os"
+	"github.com/MatheusHenrique129/application-in-go/configs"
+	"github.com/MatheusHenrique129/application-in-go/database"
+	"github.com/MatheusHenrique129/application-in-go/server"
 )
 
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = ":2022"
-		fmt.Println("🚀 Server run port:" + port)
-	}
+	conf := configs.NewConfig()
 
-	// Create a new Fiber instance
-	app := fiber.New()
+	database.CreateDB(conf)
 
-	// Response with a hello message for calling root path
-	app.Get("/", welcome)
+	server := server.NewServer()
 
-	err := app.Listen(port)
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func welcome(c *fiber.Ctx) error {
-	return c.SendString("💃🏻 Welcome to my System 👋!")
+	server.Run()
 }
