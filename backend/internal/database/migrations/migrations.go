@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"github.com/MatheusHenrique129/application-in-go/models"
+	"github.com/MatheusHenrique129/application-in-go/internal/models"
 	"gorm.io/gorm"
 )
 

@@ -16,7 +16,7 @@ Esse é um repositorio com um projeto de teste para aplicar conhecimentos adquir
 
 * [Docsify](https://docsify.js.org/#/quickstart) \
   Você pode instalar o docsify e executar os seguintes comandos para visualizar a documentação:
-  
+
   ```
   cd docs/guide;
 
