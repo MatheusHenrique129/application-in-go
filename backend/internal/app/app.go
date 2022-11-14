@@ -34,8 +34,6 @@ type App struct {
 }
 
 func (a *App) Run() error {
-	a.Logger.Infof(a.appContext, "🚀 Starting application on port: %s", a.Config.GetPort())
-
 	server := &http.Server{
 		Addr:    ":" + a.Config.GetPort(),
 		Handler: a.Router,
@@ -49,10 +47,7 @@ func (a *App) Run() error {
 	a.errorChan = make(chan error)
 
 	go func() {
-		a.Logger.InfofWithoutContext(
-			"Starting application on port: %v.",
-			a.Config.GetPort(),
-		)
+		a.Logger.InfofWithoutContext("🚀 Starting application on port: %s.", a.Config.GetPort())
 
 		a.errorChan <- server.ListenAndServe()
 	}()
