@@ -4,15 +4,17 @@ import (
 	"fmt"
 
 	"github.com/MatheusHenrique129/application-in-go/internal/config"
-	"github.com/MatheusHenrique129/application-in-go/internal/constants"
-	"github.com/MatheusHenrique129/application-in-go/internal/controller/v1"
+	"github.com/MatheusHenrique129/application-in-go/internal/consts"
+	"github.com/MatheusHenrique129/application-in-go/internal/controller"
 	"github.com/MatheusHenrique129/application-in-go/internal/util"
 	"github.com/gin-gonic/gin"
 )
 
 type Routes struct {
-	config *config.Config
-	logger *util.Logger
+	config         *config.Config
+	logger         *util.Logger
+	userController *controller.UserController
+	feedController *controller.FeedController
 }
 
 func (r *Routes) CreateRouter() *gin.Engine {
@@ -21,11 +23,12 @@ func (r *Routes) CreateRouter() *gin.Engine {
 	// initialize gin routing engine
 	router := gin.Default()
 
-	// V1 endpoints
-	v1Group := router.RouterGroup.Group(getVersionedApiPrefix(constants.V1))
+	// Endpoints
+	v1Group := router.RouterGroup.Group(getVersionedApiPrefix(consts.V1))
 	{
-		// :: Products Endpoints
-		v1Group.GET("/product", v1.Products)
+		// :: Users Endpoints
+		v1Group.GET("/user/:user_id", r.userController.FindUser)
+		v1Group.GET("/user", r.feedController.ListAllProducts)
 
 	}
 
@@ -36,13 +39,15 @@ func (r *Routes) CreateRouter() *gin.Engine {
 }
 
 func getVersionedApiPrefix(version string) string {
-	return fmt.Sprintf("%s/%s", constants.ApiRoutePrefix, version)
+	return fmt.Sprintf("%s/%s", consts.ApiRoutePrefix, version)
 }
 
-func NewRoutes(config *config.Config) *Routes {
+func NewRoutes(config *config.Config, userController *controller.UserController, feedController *controller.FeedController) *Routes {
 	routes := &Routes{
-		config: config,
-		logger: util.NewLogger("Routes"),
+		config:         config,
+		userController: userController,
+		feedController: feedController,
+		logger:         util.NewLogger("Routes"),
 	}
 	return routes
 }

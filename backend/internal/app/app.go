@@ -10,8 +10,9 @@ import (
 	"time"
 
 	"github.com/MatheusHenrique129/application-in-go/internal/config"
-	"github.com/MatheusHenrique129/application-in-go/internal/controller/v1"
+	"github.com/MatheusHenrique129/application-in-go/internal/controller"
 	"github.com/MatheusHenrique129/application-in-go/internal/routes"
+	"github.com/MatheusHenrique129/application-in-go/internal/service"
 	"github.com/MatheusHenrique129/application-in-go/internal/util"
 	"github.com/MatheusHenrique129/application-in-go/libraries/logger"
 	"github.com/gin-gonic/gin"
@@ -32,8 +33,14 @@ type App struct {
 	Validator  *validator.Validate
 	TimeHelper util.TimeHelper
 
+	ValidateService *service.ValidateService
+
+	// Services
+	UserService service.UserService
+
 	// Controllers
-	ProductsController *v1.ProductsController
+	ProductsController *controller.FeedController
+	UserController     *controller.UserController
 }
 
 func (a *App) Run() error {
@@ -66,14 +73,17 @@ func (a *App) setupDependencies() {
 
 	// Validator
 	a.Validator = validator.New()
-
-	// Controllers
-	a.ProductsController = v1.NewProductsController()
+	a.ValidateService = service.NewValidatorService(a.Validator)
 
 	// Services
+	a.UserService = service.NewUserService(a.Config, a.ValidateService)
+
+	// Controllers
+	a.ProductsController = controller.NewProductsController()
+	a.UserController = controller.NewUserController(a.UserService)
 
 	// Routes
-	r := routes.NewRoutes(a.Config)
+	r := routes.NewRoutes(a.Config, a.UserController, a.ProductsController)
 	a.Router = r.CreateRouter()
 
 	a.Logger.DebugWithoutContext("Application dependencies initialized.")
