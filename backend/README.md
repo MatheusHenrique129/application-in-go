@@ -28,5 +28,6 @@ Esse é um repositorio com um projeto de teste para aplicar conhecimentos adquir
 ## Gerenciamento de Dependências
 
 * [Go](https://go.dev/doc/)
-* [Gorm](https://github.com/go-gorm/mysql)
+* [Gorm](https://github.com/go-gorm/mysql) Pensando em usar
 * [Go MySQL Driver](https://github.com/go-sql-driver/mysql)
+* [Migrate CLI](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)

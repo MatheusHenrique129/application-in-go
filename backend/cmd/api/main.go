@@ -22,13 +22,13 @@ func main() {
 	startTime = defaultTimeHelper.GetCurrentUtcDateTime()
 	logger.Info("Initializing create DB.")
 
-	mysql.CreateDB(conf)
+	db := mysql.CreateDB(conf)
 	logger.Infof("Finished create DB. %d ms", time.Since(startTime).Milliseconds())
 
 	startTime = defaultTimeHelper.GetCurrentUtcDateTime()
 	logger.Info("Initializing new app.")
 
-	application := app.NewApp()
+	application := app.NewApp(db)
 	logger.Infof("Finished create new app. %d ms", time.Since(startTime).Milliseconds())
 
 	err := application.Run()

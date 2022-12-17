@@ -124,7 +124,7 @@ func (a *App) Setup() {
 	a.Logger.DebugWithoutContext("Application setup finished.")
 }
 
-func NewApp() *App {
+func NewApp(db *sql.DB) *App {
 	// Previous custom options
 	defaultGlobalConfig := config.NewConfig()
 	defaultLogger := util.NewLogger("App")
@@ -134,6 +134,11 @@ func NewApp() *App {
 		Logger:     defaultLogger,
 		osSignal:   CreateSignalChannel(),
 		TimeHelper: util.NewTimeHelper(),
+	}
+
+	// TODO rever a necessidade e retirar caso nao precisar futuramente
+	if db != nil {
+		a.DB = db
 	}
 
 	//Load configurations and dependencies
