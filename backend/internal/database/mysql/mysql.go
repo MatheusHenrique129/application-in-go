@@ -1,4 +1,4 @@
-package database
+package mysql
 
 import (
 	"fmt"
@@ -33,11 +33,10 @@ func CreateDB(conf *config.Config) *gorm.DB {
 	cfg.SetConnMaxLifetime(time.Hour)
 
 	logger.Info("Successful connection to MySQL DB")
-
 	return db
 }
 
-//createDataSourceName Create a data source name for MySQL
+// createDataSourceName Create a data source name for MySQL
 func createDataSourceName(conf *config.Config) string {
 	dsn := fmt.Sprintf("%s:%s@%s/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		conf.GetDatabaseUser(),

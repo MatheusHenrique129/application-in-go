@@ -15,19 +15,22 @@ import (
 	"github.com/MatheusHenrique129/application-in-go/internal/util"
 	"github.com/MatheusHenrique129/application-in-go/libraries/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type App struct {
 	appContext       context.Context
 	appContextCancel context.CancelFunc
+	osSignal         chan os.Signal
 	errorChan        chan error
 	LastError        error
-	OsSignal         chan os.Signal
 
-	Config *config.Config
-	Router *gin.Engine
-	DB     *sql.DB
-	Logger *util.Logger
+	Config     *config.Config
+	Router     *gin.Engine
+	DB         *sql.DB
+	Logger     *util.Logger
+	Validator  *validator.Validate
+	TimeHelper util.TimeHelper
 
 	// Controllers
 	ProductsController *v1.ProductsController
@@ -48,7 +51,6 @@ func (a *App) Run() error {
 
 	go func() {
 		a.Logger.InfofWithoutContext("🚀 Starting application on port: %s.", a.Config.GetPort())
-
 		a.errorChan <- server.ListenAndServe()
 	}()
 
@@ -61,6 +63,9 @@ func (a *App) Run() error {
 
 func (a *App) setupDependencies() {
 	a.Logger.DebugWithoutContext("Initializing application dependencies...")
+
+	// Validator
+	a.Validator = validator.New()
 
 	// Controllers
 	a.ProductsController = v1.NewProductsController()
@@ -77,7 +82,7 @@ func (a *App) setupDependencies() {
 func (a *App) waitForShutdown(ctx context.Context, srv *http.Server) {
 	for {
 		select {
-		case <-a.OsSignal:
+		case <-a.osSignal:
 			a.Logger.InfofWithoutContext("Received signal to shutdown the web server. Shutting down in %d milliseconds...", a.Config.GetAppShutdownGraceMilliseconds())
 			ctx, cancel := context.WithTimeout(ctx, time.Duration(a.Config.GetAppShutdownGraceMilliseconds())*time.Millisecond)
 			defer cancel()
@@ -93,9 +98,11 @@ func (a *App) waitForShutdown(ctx context.Context, srv *http.Server) {
 	}
 }
 
+// CreateSignalChannel Creates a channel that will be notified by signals SIGINT and SIGTERM.
 func CreateSignalChannel() chan os.Signal {
 	exitSignalChannel := make(chan os.Signal, 1)
 	signal.Notify(exitSignalChannel, syscall.SIGINT, syscall.SIGTERM)
+
 	return exitSignalChannel
 }
 
@@ -107,14 +114,16 @@ func (a *App) Setup() {
 	a.Logger.DebugWithoutContext("Application setup finished.")
 }
 
-func NewApplication(cfg *config.Config) *App {
+func NewApp() *App {
 	// Previous custom options
-	defaultLogger := util.NewLogger("app")
+	defaultGlobalConfig := config.NewConfig()
+	defaultLogger := util.NewLogger("App")
 
 	a := &App{
-		Config:   cfg,
-		Logger:   defaultLogger,
-		OsSignal: CreateSignalChannel(),
+		Config:     defaultGlobalConfig,
+		Logger:     defaultLogger,
+		osSignal:   CreateSignalChannel(),
+		TimeHelper: util.NewTimeHelper(),
 	}
 
 	//Load configurations and dependencies

@@ -5,7 +5,7 @@ import (
 
 	"github.com/MatheusHenrique129/application-in-go/internal/app"
 	"github.com/MatheusHenrique129/application-in-go/internal/config"
-	"github.com/MatheusHenrique129/application-in-go/internal/database"
+	"github.com/MatheusHenrique129/application-in-go/internal/database/mysql"
 	"github.com/MatheusHenrique129/application-in-go/internal/util"
 	"github.com/MatheusHenrique129/application-in-go/libraries/logger"
 )
@@ -22,13 +22,13 @@ func main() {
 	startTime = defaultTimeHelper.GetCurrentUtcDateTime()
 	logger.Info("Initializing create DB.")
 
-	database.CreateDB(conf)
+	mysql.CreateDB(conf)
 	logger.Infof("Finished create DB. %d ms", time.Since(startTime).Milliseconds())
 
 	startTime = defaultTimeHelper.GetCurrentUtcDateTime()
 	logger.Info("Initializing new app.")
 
-	application := app.NewApplication(conf)
+	application := app.NewApp()
 	logger.Infof("Finished create new app. %d ms", time.Since(startTime).Milliseconds())
 
 	err := application.Run()

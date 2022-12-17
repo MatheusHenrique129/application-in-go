@@ -67,10 +67,16 @@ func (c *Config) GetDatabaseName() string {
 
 // Load the configuration.
 func (c *Config) Load() {
-	//confEnv := &Env{}
+	confEnv := &Env{}
 
 	// Load config parameters
-	c.port = "8080" //confEnv.Port
+	port := confEnv.Port
+	if port == "" {
+		port = "8080"
+	}
+
+	// Load config parameters from env
+	c.port = port
 	c.databaseHost = DBDefaultHost
 	c.databaseUser = DBDefaultUser
 	c.databasePass = DBDefaultPass
@@ -79,7 +85,7 @@ func (c *Config) Load() {
 
 func NewConfig() *Config {
 	c := &Config{
-		logger: util.NewLogger("config"),
+		logger: util.NewLogger("Config"),
 	}
 
 	c.Load()
