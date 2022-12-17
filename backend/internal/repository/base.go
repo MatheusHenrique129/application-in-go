@@ -1,13 +1,14 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/MatheusHenrique129/application-in-go/internal/config"
 	"github.com/MatheusHenrique129/application-in-go/internal/util"
-	"gorm.io/gorm"
 )
 
 type BaseRepository struct {
 	config *config.Config
-	db     *gorm.DB
+	db     *sql.DB
 	logger *util.Logger
 }
