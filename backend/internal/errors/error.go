@@ -1,10 +1,13 @@
 package errors
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/MatheusHenrique129/application-in-go/internal/consts"
+	"github.com/MatheusHenrique129/application-in-go/internal/repository"
+	"github.com/MatheusHenrique129/application-in-go/libraries/logger"
 )
 
 type CauseList []interface{}
@@ -48,12 +51,47 @@ func NewBadRequestResponse(msg string) CustomError {
 	return NewBadRequestCustomError(msg)
 }
 
+func NewBadRequestBindingResponse(msg string, cause interface{}) CustomError {
+	causeList := make([]interface{}, 0)
+
+	if cause != nil {
+		causeList = append(causeList, cause)
+	}
+
+	return NewCustomError(
+		msg,
+		consts.ValidationErrorCode,
+		http.StatusBadRequest,
+		causeList,
+	)
+}
+
 func NewValidationErrorResponse(errorList []interface{}) CustomError {
 	return NewValidationCustomError(consts.ValidationErrorMessage, consts.ValidationErrorCode, errorList)
 }
 
 func NewValidationSingleErrorResponse(err interface{}) CustomError {
 	return NewValidationErrorResponse([]interface{}{err})
+}
+
+func NewInternalServerErrorResponse(message string, code string, err error) CustomError {
+	// Don't return the error itself since it could leak important data. Just log it here
+
+	logger.Errorf("[CustomError] Returning 500 response (code: %s - message: %s).", err, code, message)
+	return NewCustomError(message, code, http.StatusInternalServerError, make(CauseList, 0))
+}
+
+func NewRepoErrorResponse(msg string, err repository.RepoError) CustomError {
+	switch err.Code() {
+	case consts.AlreadyExistsCode:
+		return NewBadRequestResponse(msg)
+
+	case consts.InternalIDAlreadyExistsCode:
+		return NewValidationResponseError(NewValidationError(consts.FieldUserID, consts.UniqueTag, consts.InternalIDAlreadyExistsMessage))
+
+	default:
+		return NewInternalServerErrorResponse(msg, consts.RepoErrorCode, errors.New(err.Reason()))
+	}
 }
 
 func NewCustomError(message string, error string, status int, cause CauseList) CustomError {

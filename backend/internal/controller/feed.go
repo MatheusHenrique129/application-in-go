@@ -12,14 +12,6 @@ type FeedController struct {
 	logger *util.Logger
 }
 
-// ListAllProducts List of roles.
-// @Summary Returns a list of products.
-// @Tags products
-// @Produce json
-// @Success 200 {object} domain.RoleListResource
-// @Failure 400 {object} apierrors.apiErr
-// @Failure 500 {object} apierrors.apiErr
-// @Router /v1/products [get]
 func (p *FeedController) ListAllProducts(c *gin.Context) {
 
 	result := gin.H{
@@ -32,7 +24,7 @@ func (p *FeedController) ListAllProducts(c *gin.Context) {
 
 func NewProductsController() *FeedController {
 	controller := &FeedController{
-		logger: util.NewLogger("FindUser Controller"),
+		logger: util.NewLogger("Feed Controller"),
 	}
 	return controller
 }

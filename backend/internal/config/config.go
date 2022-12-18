@@ -7,6 +7,7 @@ import (
 // Constants
 const (
 	// Database
+
 	DriverName     = "mysql"
 	DBDefaultHost  = "tcp(localhost:3306)"
 	DBDefaultUser  = "root"

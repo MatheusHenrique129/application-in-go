@@ -28,7 +28,7 @@ func (r *Routes) CreateRouter() *gin.Engine {
 	{
 		// :: Users Endpoints
 		v1Group.GET("/user/:user_id", r.userController.FindUser)
-		v1Group.GET("/user", r.feedController.ListAllProducts)
+		v1Group.POST("/user", r.userController.Create)
 
 	}
 

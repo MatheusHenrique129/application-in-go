@@ -1,4 +1,115 @@
+definitions:
+  domain.CreateUser:
+    properties:
+      address:
+        type: string
+      birth_date:
+        type: string
+      cpf:
+        type: string
+      email:
+        maxLength: 50
+        minLength: 2
+        type: string
+      gender:
+        type: string
+      name:
+        example: john
+        maxLength: 70
+        minLength: 2
+        type: string
+      password:
+        maxLength: 15
+        minLength: 5
+        type: string
+      phone_number:
+        type: string
+    required:
+    - address
+    - birth_date
+    - cpf
+    - email
+    - gender
+    - name
+    - password
+    - phone_number
+    type: object
+  domain.User:
+    properties:
+      address:
+        type: string
+      birth_date:
+        type: string
+      cpf:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      name:
+        type: string
+      phone_number:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /v1/user:
+    post:
+      parameters:
+      - description: User Information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Create a new user.
+      tags:
+      - user
+  /v1/user/{user_id}:
+    get:
+      parameters:
+      - description: ID of the user
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Find user by ID.
+      tags:
+      - user
 swagger: "2.0"

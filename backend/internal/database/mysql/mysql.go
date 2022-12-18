@@ -42,5 +42,3 @@ func createDataSourceName(conf *config.Config) string {
 
 	return dsn
 }
-
-//migrate -path ./migrations -database "mysql://root:Math@2109@tcp(localhost:3306)/bdgolang?charset=utf8mb4&parseTime=true&loc=Local"  -verbose up

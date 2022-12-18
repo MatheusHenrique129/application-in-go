@@ -2,7 +2,9 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/MatheusHenrique129/application-in-go/internal/consts"
 	"github.com/MatheusHenrique129/application-in-go/internal/domain"
 	"github.com/MatheusHenrique129/application-in-go/internal/errors"
 	"github.com/MatheusHenrique129/application-in-go/internal/service"
@@ -15,11 +17,12 @@ type UserController struct {
 	userService service.UserService
 }
 
-// FindUser List all users.
-// @Summary Returns a list of users.
-// @Tags products
+// FindUser Find user by ID.
+// @Summary Find user by ID.
+// @Tags user
+// @Param user_id path integer true "ID of the user"
 // @Produce json
-// @Success 200 {object} domain.RoleListResource
+// @Success 200 {object} domain.User
 // @Failure 400 {object} errors.CustomError
 // @Failure 404 {object} errors.CustomError
 // @Failure 500 {object} errors.CustomError
@@ -28,21 +31,53 @@ func (u *UserController) FindUser(c *gin.Context) {
 	uriReq := domain.URIUser{}
 
 	if err := c.BindUri(&uriReq); err != nil {
-		appErr := errors.NewBadRequestCustomError("Invalid URI values. Please, check that the external_id and namespace parameters are correct.")
-		_ = c.Error(appErr)
+		appErr := errors.NewBadRequestBindingResponse(consts.InvalidUriValueUserIDMessage, err)
+		c.JSON(appErr.Status(), appErr)
 		return
 	}
 
-	res, err := u.userService.Find(uriReq)
+	var userID, ParseErr = strconv.ParseInt(uriReq.UserID, consts.DefaultBase, consts.Size64)
+	if ParseErr != nil {
+		appErr := errors.NewBadRequestBindingResponse(consts.IDCannotStringMessage, ParseErr)
+		c.JSON(appErr.Status(), appErr)
+		return
+	}
+
+	res, err := u.userService.FindByID(c, userID)
 	if err != nil {
-		u.logger.Errorf(c, "Error find user. userID: %s.", err, uriReq.UserID)
-		c.Status(http.StatusInternalServerError)
-		c.Error(err)
+		c.JSON(err.Status(), err)
 		return
 	}
 
-	u.logger.Info(c, "Successful in getting the products!")
 	c.JSON(http.StatusOK, res)
+}
+
+// Create a new user.
+// @Summary Create a new user.
+// @Tags user
+// @Produce json
+// @Param user body domain.CreateUser true "User Information"
+// @Success 201 {object} domain.User
+// @Failure 400 {object} errors.CustomError
+// @Failure 500 {object} errors.CustomError
+// @Router /v1/user [post]
+func (u *UserController) Create(c *gin.Context) {
+	req := domain.CreateUser{}
+
+	if err := c.BindJSON(&req); err != nil {
+		appErr := errors.NewBadRequestCustomError(consts.InvalidRequestJsonMessage)
+		c.JSON(appErr.Status(), appErr)
+		return
+	}
+
+	res, err := u.userService.Create(c, req)
+
+	if err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, res)
 }
 
 func NewUserController(userService service.UserService) *UserController {
