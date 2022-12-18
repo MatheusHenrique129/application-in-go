@@ -29,6 +29,7 @@ func (r *Routes) CreateRouter() *gin.Engine {
 		// :: Users Endpoints
 		v1Group.GET("/user/:user_id", r.userController.FindUser)
 		v1Group.POST("/user", r.userController.Create)
+		v1Group.PUT("/user/:user_id", r.userController.Update)
 
 	}
 

@@ -13,6 +13,7 @@ import (
 
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) RepoError
+	Update(ctx context.Context, user *model.User) (int64, RepoError)
 	FindByID(ctx context.Context, userID int64) (*model.User, RepoError)
 }
 
@@ -48,6 +49,39 @@ func (u *userRepository) Create(ctx context.Context, user *model.User) RepoError
 	return nil
 }
 
+func (u *userRepository) Update(ctx context.Context, user *model.User) (int64, RepoError) {
+
+	qs := goquMysql.
+		Update(consts.TableUser).
+		Set(goqu.Record{
+			consts.FieldName:        user.Name,
+			consts.FieldCpf:         user.CPF,
+			consts.FieldEmail:       user.Email,
+			consts.FieldAddress:     user.Address,
+			consts.FieldPhoneNumber: user.PhoneNumber,
+			consts.FieldGender:      user.Gender,
+			consts.FieldPassword:    user.Password,
+			consts.FieldBirthDate:   user.BirthDate,
+			consts.FieldUpdatedAt:   user.UpdatedAt,
+		}).
+		Where(goqu.Ex{
+			consts.FieldUserID: user.ID,
+		}).
+		Prepared(true)
+
+	query, args, _ := qs.ToSQL()
+
+	rows, err := u.db.Exec(query, args...)
+	if err != nil {
+		u.logger.Errorf(ctx, "Could NOT update user with id: %v.", err, user.ID)
+		return 0, NewFromDatabaseError(err)
+	}
+
+	count, _ := rows.RowsAffected()
+
+	return count, nil
+}
+
 func (u *userRepository) FindByID(ctx context.Context, userID int64) (*model.User, RepoError) {
 
 	var user model.User
@@ -70,7 +104,7 @@ func (u *userRepository) FindByID(ctx context.Context, userID int64) (*model.Use
 		return nil, nil
 	}
 
-	u.logger.Debugf(ctx, "Obtaining successful '%s' user!", userID)
+	u.logger.Debugf(ctx, "Obtaining successful user with id: %v.!", userID)
 	return &user, nil
 }
 

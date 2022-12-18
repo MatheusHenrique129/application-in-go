@@ -80,6 +80,45 @@ func (u *UserController) Create(c *gin.Context) {
 	c.JSON(http.StatusCreated, res)
 }
 
+// Update a new user.
+// @Summary Update a new user.
+// @Tags user
+// @Produce json
+// @Param user_id path integer true "ID of the user"
+// @Param user body domain.CreateUser true "User Information"
+// @Success 200 {object} domain.User
+// @Failure 400 {object} errors.CustomError
+// @Failure 404 {object} errors.CustomError
+// @Failure 500 {object} errors.CustomError
+// @Router /v1/user/{user_id} [put]
+func (u *UserController) Update(c *gin.Context) {
+	uriReq := domain.URIUser{}
+
+	if err := c.BindUri(&uriReq); err != nil {
+		appErr := errors.NewBadRequestBindingResponse(consts.InvalidUriValueUserIDMessage, err)
+		c.JSON(appErr.Status(), appErr)
+		return
+	}
+
+	req := domain.UpdateUser{}
+	req.UserID = uriReq.UserID
+
+	if err := c.BindJSON(&req); err != nil {
+		appErr := errors.NewBadRequestCustomError(consts.InvalidRequestJsonMessage)
+		c.JSON(appErr.Status(), appErr)
+		return
+	}
+
+	res, err := u.userService.Update(c, req)
+
+	if err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	c.JSON(http.StatusOK, res)
+}
+
 func NewUserController(userService service.UserService) *UserController {
 	return &UserController{
 		userService: userService,

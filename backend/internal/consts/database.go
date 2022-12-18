@@ -7,7 +7,17 @@ const (
 
 	// User Fields
 
-	FieldUserID = "id"
+	FieldUserID      = "id"
+	FieldName        = "full_name"
+	FieldCpf         = "cpf"
+	FieldEmail       = "email"
+	FieldAddress     = "address"
+	FieldPhoneNumber = "phone_number"
+	FieldGender      = "gender"
+	FieldPassword    = "password"
+	FieldBirthDate   = "birth_date"
+	FieldCreatedAt   = "created_at"
+	FieldUpdatedAt   = "updated_at"
 
 	// Error Database Code
 

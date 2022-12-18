@@ -23,6 +23,18 @@ type CreateUser struct {
 	Gender      string `json:"gender" yaml:"gender" validate:"required"`
 }
 
+type UpdateUser struct {
+	UserID      string `uri:"user_id" json:"-" yaml:"-" binding:"required"`
+	Name        string `json:"name" yaml:"name" example:"john" binding:"required,min=2,max=70" validate:"required"`
+	Email       string `json:"email" yaml:"email" validate:"required,min=2,max=50,valid_email"`
+	BirthDate   string `json:"birth_date" yaml:"birth_date" validate:"required"`
+	PhoneNumber string `json:"phone_number" yaml:"phone_number" validate:"required"`
+	Password    string `json:"password" yaml:"password" validate:"required,min=5,max=15"`
+	CPF         string `json:"cpf" yaml:"cpf" validate:"required"`
+	Address     string `json:"address" yaml:"address" validate:"required"`
+	Gender      string `json:"gender" yaml:"gender" validate:"required"`
+}
+
 // :: Output structs
 
 type User struct {
@@ -55,6 +67,37 @@ func UserToCreateUserModel(req *CreateUser) *model.User {
 }
 
 func UserToCreateUserDomain(req *model.User) *User {
+
+	return &User{
+		UserID:      req.ID,
+		Name:        req.Name,
+		CPF:         req.CPF,
+		Email:       req.Email,
+		Address:     req.Address,
+		PhoneNumber: req.PhoneNumber,
+		Gender:      req.Gender,
+		BirthDate:   req.BirthDate,
+		CreatedAt:   req.CreatedAt.Format("02.01.2006 03:04:05"),
+		UpdatedAt:   req.UpdatedAt.Format("02.01.2006 03:04:05"),
+	}
+}
+
+func UserToUpdateUserModel(req *UpdateUser) *model.User {
+
+	return &model.User{
+		Name:        req.Name,
+		CPF:         req.CPF,
+		Email:       req.Email,
+		Address:     req.Address,
+		PhoneNumber: req.PhoneNumber,
+		Gender:      req.Gender,
+		Password:    req.Password,
+		BirthDate:   req.BirthDate,
+		UpdatedAt:   time.Now(),
+	}
+}
+
+func UserToUpdateUserDomain(req *model.User) *User {
 
 	return &User{
 		UserID:      req.ID,

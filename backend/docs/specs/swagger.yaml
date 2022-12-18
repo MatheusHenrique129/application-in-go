@@ -112,4 +112,36 @@ paths:
       summary: Find user by ID.
       tags:
       - user
+    put:
+      parameters:
+      - description: ID of the user
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: User Information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.User'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Update a new user.
+      tags:
+      - user
 swagger: "2.0"
