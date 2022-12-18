@@ -30,6 +30,7 @@ func (r *Routes) CreateRouter() *gin.Engine {
 		v1Group.GET("/user/:user_id", r.userController.FindUser)
 		v1Group.POST("/user", r.userController.Create)
 		v1Group.PUT("/user/:user_id", r.userController.Update)
+		v1Group.DELETE("/user/:user_id", r.userController.Delete)
 
 	}
 

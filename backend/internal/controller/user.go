@@ -85,7 +85,7 @@ func (u *UserController) Create(c *gin.Context) {
 // @Tags user
 // @Produce json
 // @Param user_id path integer true "ID of the user"
-// @Param user body domain.CreateUser true "User Information"
+// @Param user body domain.UpdateUser true "User Information"
 // @Success 200 {object} domain.User
 // @Failure 400 {object} errors.CustomError
 // @Failure 404 {object} errors.CustomError
@@ -117,6 +117,40 @@ func (u *UserController) Update(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, res)
+}
+
+// Delete user by ID.
+// @Summary Delete user by ID.
+// @Tags user
+// @Param user_id path integer true "ID of the user"
+// @Produce json
+// @Success 200 "OK"
+// @Failure 400 {object} errors.CustomError
+// @Failure 404 {object} errors.CustomError
+// @Failure 500 {object} errors.CustomError
+// @Router /v1/user/{user_id} [delete]
+func (u *UserController) Delete(c *gin.Context) {
+	uriReq := domain.URIUser{}
+
+	if err := c.BindUri(&uriReq); err != nil {
+		appErr := errors.NewBadRequestBindingResponse(consts.InvalidUriValueUserIDMessage, err)
+		c.JSON(appErr.Status(), appErr)
+		return
+	}
+
+	var userID, ParseErr = strconv.ParseInt(uriReq.UserID, consts.DefaultBase, consts.Size64)
+	if ParseErr != nil {
+		appErr := errors.NewBadRequestBindingResponse(consts.IDCannotStringMessage, ParseErr)
+		c.JSON(appErr.Status(), appErr)
+		return
+	}
+
+	if err := u.userService.Delete(c, userID); err != nil {
+		c.JSON(err.Status(), err)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func NewUserController(userService service.UserService) *UserController {

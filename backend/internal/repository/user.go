@@ -14,6 +14,7 @@ import (
 type UserRepository interface {
 	Create(ctx context.Context, user *model.User) RepoError
 	Update(ctx context.Context, user *model.User) (int64, RepoError)
+	Delete(ctx context.Context, userID int64) RepoError
 	FindByID(ctx context.Context, userID int64) (*model.User, RepoError)
 }
 
@@ -80,6 +81,27 @@ func (u *userRepository) Update(ctx context.Context, user *model.User) (int64, R
 	count, _ := rows.RowsAffected()
 
 	return count, nil
+}
+
+func (u *userRepository) Delete(ctx context.Context, userID int64) RepoError {
+
+	qs := goquMysql.
+		Delete(consts.TableUser).
+		Where(goqu.Ex{
+			consts.FieldUserID: userID,
+		}).
+		Prepared(true)
+
+	query, args, _ := qs.ToSQL()
+
+	_, err := u.db.Exec(query, args...)
+	if err != nil {
+		u.logger.Errorf(ctx, "Could NOT delete user '%s'.", err, userID)
+
+		return NewFromDatabaseError(err)
+	}
+
+	return nil
 }
 
 func (u *userRepository) FindByID(ctx context.Context, userID int64) (*model.User, RepoError) {

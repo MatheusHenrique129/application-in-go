@@ -103,7 +103,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/domain.CreateUser"
+                            "$ref": "#/definitions/domain.UpdateUser"
                         }
                     }
                 ],
@@ -127,11 +127,92 @@
                         "schema": {}
                     }
                 }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Delete user by ID.",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID of the user",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
             }
         }
     },
     "definitions": {
         "domain.CreateUser": {
+            "type": "object",
+            "required": [
+                "address",
+                "birth_date",
+                "cpf",
+                "email",
+                "gender",
+                "name",
+                "password",
+                "phone_number"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "birth_date": {
+                    "type": "string"
+                },
+                "cpf": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2
+                },
+                "gender": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 70,
+                    "minLength": 2,
+                    "example": "john"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 15,
+                    "minLength": 5
+                },
+                "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "domain.UpdateUser": {
             "type": "object",
             "required": [
                 "address",

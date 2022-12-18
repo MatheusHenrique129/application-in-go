@@ -17,6 +17,7 @@ type UserService interface {
 
 	Create(ctx context.Context, req domain.CreateUser) (*domain.User, errors.CustomError)
 	Update(ctx context.Context, req domain.UpdateUser) (*domain.User, errors.CustomError)
+	Delete(ctx context.Context, userID int64) errors.CustomError
 }
 
 type userService struct {
@@ -87,6 +88,23 @@ func (u *userService) Update(ctx context.Context, req domain.UpdateUser) (*domai
 	}
 
 	return domain.UserToUpdateUserDomain(user), nil
+}
+
+func (u *userService) Delete(ctx context.Context, userID int64) errors.CustomError {
+	user, repoErr := u.userRepository.FindByID(ctx, userID)
+	if repoErr != nil {
+		return errors.NewRepoErrorResponse(consts.OccurredErrorFindUserMessage, repoErr)
+	}
+
+	if user == nil {
+		return errors.NewNotFoundCustomError(consts.UserNotFoundMessage)
+	}
+
+	if err := u.userRepository.Delete(ctx, userID); err != nil {
+		return errors.NewRepoErrorResponse(consts.OccurredErrorDeleteUserMessage, repoErr)
+	}
+
+	return nil
 }
 
 func NewUserService(conf *config.Config, validateService *ValidateService, userRepository repository.UserRepository) UserService {
