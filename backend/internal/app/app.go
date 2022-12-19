@@ -11,6 +11,7 @@ import (
 
 	"github.com/MatheusHenrique129/application-in-go/internal/config"
 	"github.com/MatheusHenrique129/application-in-go/internal/controller"
+	"github.com/MatheusHenrique129/application-in-go/internal/ginhandler"
 	"github.com/MatheusHenrique129/application-in-go/internal/repository"
 	"github.com/MatheusHenrique129/application-in-go/internal/routes"
 	"github.com/MatheusHenrique129/application-in-go/internal/service"
@@ -34,13 +35,15 @@ type App struct {
 	Validator  *validator.Validate
 	TimeHelper util.TimeHelper
 
-	ValidateService *service.ValidateService
+	// Handlers
+	AuthHandler *ginhandler.AuthHandler
 
 	// Repositories
 	UserRepository repository.UserRepository
 
 	// Services
-	UserService service.UserService
+	UserService     service.UserService
+	ValidateService *service.ValidateService
 
 	// Controllers
 	ProductsController *controller.FeedController
@@ -88,6 +91,9 @@ func (a *App) setupDependencies() {
 	// Controllers
 	a.ProductsController = controller.NewProductsController()
 	a.UserController = controller.NewUserController(a.UserService)
+
+	// Handlers
+	a.AuthHandler = ginhandler.NewAuthHandler(a.Config)
 
 	// Routes
 	r := routes.NewRoutes(a.Config, a.UserController, a.ProductsController)
